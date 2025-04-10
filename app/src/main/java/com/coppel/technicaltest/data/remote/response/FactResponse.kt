@@ -6,7 +6,7 @@ data class FactResponse(
     @SerializedName("pagination")
     val pagination: Pagination,
     @SerializedName("results")
-    val results: List<FactEntity>
+    val results: List<Fact>
 )
 
 data class Pagination(
@@ -18,7 +18,7 @@ data class Pagination(
     val total: Int
 )
 
-data class FactEntity(
+data class Fact(
     @SerializedName("_id")
     val uid: String,
     @SerializedName("date_insert")

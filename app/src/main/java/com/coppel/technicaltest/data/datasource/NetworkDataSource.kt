@@ -13,7 +13,8 @@ class NetworkRepository @Inject constructor(
         val response = apiService.getAllFacts()
 
         if (response.isSuccessful) {
-            return response.body()?.results?.map { it.toDomain() } ?: emptyList()
+            return response.body()?.results?.map { fact ->
+                fact.toDomain() } ?: emptyList()
         } else {
             throw Exception("Error al obtener los datos")
         }
