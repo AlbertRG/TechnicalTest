@@ -1,50 +1,96 @@
 package com.coppel.technicaltest.ui.components
 
 import androidx.compose.foundation.Canvas
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.geometry.CornerRadius
-import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.drawscope.rotate
+import androidx.compose.ui.graphics.Path
+import androidx.compose.ui.graphics.asComposePath
+import androidx.compose.ui.graphics.drawscope.scale
+import androidx.compose.ui.graphics.drawscope.translate
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.graphics.shapes.CornerRounding
+import androidx.graphics.shapes.RoundedPolygon
+import androidx.graphics.shapes.toPath
 
 @Composable
 fun LoginBackground() {
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(Color.DarkGray)
     ) {
         Canvas(modifier = Modifier.fillMaxSize()) {
 
-            drawRect(
-                color = Color.White,
-                topLeft = Offset(0f, size.height / 2),
-                size = Size(size.width, size.height / 2)
+            val width = size.width
+            val height = size.height
+
+
+            val purplePath = Path().apply {
+                moveTo(0f, height * 0.3f)
+                lineTo(width, height * 0.55f)
+                lineTo(width, height)
+                lineTo(0f, height)
+                close()
+            }
+
+            drawPath(
+                path = purplePath,
+                color = Color(0xFF665AFF)
             )
 
-            val squareSize = size.width
-            val topLeft = Offset(
-                (size.width - squareSize) / 2,
-                (size.height - squareSize) / 2
-            )
-
-            rotate(degrees = 45f, pivot = center) {
-                drawRoundRect(
-                    color = Color.White,
-                    topLeft = topLeft,
-                    size = Size(squareSize, squareSize),
-                    cornerRadius = CornerRadius(80f, 80f)
+            val bigTriangle = RoundedPolygon(
+                numVertices = 3,
+                radius = size.width / 1.5f,
+                centerX = 0f,
+                centerY = size.height / 15,
+                rounding = CornerRounding(
+                    size.minDimension / 20f,
+                    smoothing = 0.3f
                 )
+            )
+
+            val roundedPolygonPath = bigTriangle.toPath().asComposePath()
+            drawPath(roundedPolygonPath, color = Color(0xFFC7C4EE))
+
+            val smallTriangleA = RoundedPolygon(
+                numVertices = 3,
+                radius = size.width / 1.5f,
+                centerX = size.width / 100,
+                centerY = size.height / 7,
+                rounding = CornerRounding(
+                    size.minDimension / 20f,
+                    smoothing = 0.3f
+                )
+            )
+
+            translate(smallTriangleA.centerX, smallTriangleA.centerY) {
+                scale(scaleX = -1f, scaleY = 1f) {
+                    drawPath(roundedPolygonPath, color = Color(0xCCC7C4EE))
+                }
+            }
+
+            val smallTriangleB = RoundedPolygon(
+                numVertices = 3,
+                radius = size.width / 1.5f,
+                centerX = size.width / 100,
+                centerY = size.height / 4f,
+                rounding = CornerRounding(
+                    size.minDimension / 20f,
+                    smoothing = 0.3f
+                )
+            )
+
+            translate(smallTriangleB.centerX, smallTriangleB.centerY) {
+                scale(scaleX = -1f, scaleY = 1f) {
+                    drawPath(roundedPolygonPath, color = Color(0x80665AFF))
+                }
             }
 
         }
     }
+
 }
 
 @Composable
