@@ -28,8 +28,8 @@ fun LoginBackground() {
 
 
             val purplePath = Path().apply {
-                moveTo(0f, height * 0.3f)
-                lineTo(width, height * 0.55f)
+                moveTo(0f, height * 0.24f)
+                lineTo(width, height * 0.5f)
                 lineTo(width, height)
                 lineTo(0f, height)
                 close()
@@ -44,7 +44,7 @@ fun LoginBackground() {
                 numVertices = 3,
                 radius = size.width / 1.5f,
                 centerX = 0f,
-                centerY = size.height / 15,
+                centerY = size.height / 30,
                 rounding = CornerRounding(
                     size.minDimension / 20f,
                     smoothing = 0.3f

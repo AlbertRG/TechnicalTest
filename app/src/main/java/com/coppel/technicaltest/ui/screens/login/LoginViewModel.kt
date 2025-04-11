@@ -11,19 +11,23 @@ class LoginViewModel @Inject constructor(
 
 ) : ViewModel() {
 
-    private var _loginUiState = mutableStateOf(LoginUiState())
-    val loginUiState: State<LoginUiState> get() = _loginUiState
+    private var _loginState = mutableStateOf(LoginState())
+    val loginState: State<LoginState> get() = _loginState
 
     fun onUserChanged(newUser: String) {
-        _loginUiState.value = _loginUiState.value.copy(user = newUser)
+        _loginState.value = _loginState.value.copy(user = newUser)
     }
 
     fun onPasswordChanged(newPassword: String) {
-        _loginUiState.value = _loginUiState.value.copy(password = newPassword)
+        _loginState.value = _loginState.value.copy(password = newPassword)
     }
 
     fun onBiometricChanged(enabled: Boolean) {
-        _loginUiState.value = _loginUiState.value.copy(isBiometricEnabled = enabled)
+        _loginState.value = _loginState.value.copy(isBiometricEnabled = enabled)
+    }
+
+    fun onPasswordVisibilityChanged() {
+        _loginState.value = _loginState.value.copy(passVisibility = !_loginState.value.passVisibility)
     }
 
 }
