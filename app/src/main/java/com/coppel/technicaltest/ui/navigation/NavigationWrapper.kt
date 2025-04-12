@@ -19,7 +19,7 @@ fun NavigationWrapper() {
             val loginViewModel = hiltViewModel<LoginViewModel>()
             LoginScreen(loginViewModel) {
                 navController.navigate(Home) {
-
+                    popUpTo(Login) { inclusive = true }
                 }
             }
         }

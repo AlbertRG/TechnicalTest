@@ -1,5 +1,6 @@
 package com.coppel.technicaltest.ui.screens.login
 
+import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -26,21 +27,25 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.fragment.app.FragmentActivity
 import com.coppel.technicaltest.R
 import com.coppel.technicaltest.ui.components.LoginBackground
+import com.coppel.technicaltest.utils.BiometricAuthStatus
+import com.coppel.technicaltest.utils.BiometricAuthenticator
 
 @Composable
 fun LoginScreen(
@@ -48,6 +53,36 @@ fun LoginScreen(
     navigateToHome: () -> Unit
 ) {
     val loginState = loginViewModel.loginState.value
+
+    val context = LocalContext.current
+    val activity = context as? FragmentActivity
+    val biometricAuthenticator = BiometricAuthenticator(context)
+    val authStatus = biometricAuthenticator.isBiometricAuthAvailable()
+    if (authStatus == BiometricAuthStatus.READY && loginState.isBiometricEnabled && !loginState.loginSuccess) {
+        biometricAuthenticator.promptBiometricAuth(
+            title = "Biometric Login",
+            subTitle = "Please authenticate",
+            negativeButtonText = "Cancel",
+            fragmentActivity = activity!!,
+            onSuccess = { result ->
+                loginViewModel.onLoginSuccessChanged(true)
+                Log.d("Biometric", "Authentication succeeded: $result")
+            },
+            onFailed = {
+                Log.d("Biometric", "Authentication failed")
+            },
+            onError = { errorCode, errString ->
+                Log.d("Biometric", "Error $errorCode: $errString")
+            }
+        )
+    }
+
+    LaunchedEffect(loginState.loginSuccess) {
+        if (loginState.loginSuccess) {
+            navigateToHome()
+        }
+    }
+
     LoginBackground()
     Column(
         modifier = Modifier
@@ -155,18 +190,19 @@ fun LoginScreen(
                         )
                     }
                 },
-                isError = loginState.passError,
                 visualTransformation = if (loginState.passVisibility) VisualTransformation.None
                 else PasswordVisualTransformation(),
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
                 maxLines = 1,
                 colors = TextFieldDefaults.colors(
-                    focusedIndicatorColor = Color.White,
-                    unfocusedIndicatorColor = Color.White,
                     focusedTextColor = Color.White,
                     unfocusedTextColor = Color.White,
                     focusedLabelColor = Color.White,
                     unfocusedLabelColor = Color.White,
+                    focusedSupportingTextColor = Color.White,
+                    unfocusedSupportingTextColor = Color.White,
+                    focusedIndicatorColor = Color.White,
+                    unfocusedIndicatorColor = Color.White,
                     focusedContainerColor = Color.Transparent,
                     unfocusedContainerColor = Color.Transparent,
                 )
@@ -191,7 +227,7 @@ fun LoginScreen(
             }
             Button(
                 onClick = {
-                    navigateToHome()
+                    loginViewModel.validateCredentials()
                 },
                 modifier = Modifier
                     .fillMaxWidth()
@@ -272,13 +308,4 @@ fun LoginScreen(
 
         }
     }
-}
-
-@Composable
-@Preview(showBackground = true)
-fun LoginScreenPreview() {
-    LoginScreen(
-        loginViewModel = LoginViewModel(),
-        navigateToHome = {}
-    )
 }

@@ -18,9 +18,12 @@ object LocalModule {
         context,
         DataBase::class.java,
         "facts_database"
-    ).fallbackToDestructiveMigration().build()
+    ).fallbackToDestructiveMigration(true).build()
 
     @Provides
     fun provideFactDao(dataBase: DataBase) = dataBase.factDao()
+
+    @Provides
+    fun provideUserDao(dataBase: DataBase) = dataBase.userDao()
 
 }
