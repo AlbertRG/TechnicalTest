@@ -11,7 +11,7 @@ import kotlinx.coroutines.flow.Flow
 interface FactDao {
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun insertAll(results: List<FactEntity>)
+    suspend fun insertAll(facts: List<FactEntity>)
 
     @Query("SELECT * FROM facts")
     fun getAll(): Flow<List<FactEntity>>

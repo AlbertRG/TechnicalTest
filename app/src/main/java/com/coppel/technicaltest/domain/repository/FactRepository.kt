@@ -5,7 +5,7 @@ import kotlinx.coroutines.flow.Flow
 
 interface FactRepository {
 
-    fun insertFacts(facts: List<FactModel>): Flow<Boolean>
+    suspend fun insertFacts(facts: List<FactModel>): Boolean
     fun getAllFacts(): Flow<List<FactModel>>
 
 }
