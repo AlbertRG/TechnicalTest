@@ -6,7 +6,7 @@ import javax.inject.Inject
 class SetBiometricCheckUseCase @Inject constructor(
     private val dataStoreRepository: DataStoreRepository
 ) {
-    suspend operator fun invoke(value: Boolean) =
+    suspend operator fun invoke(value: Boolean): Boolean =
         dataStoreRepository.setBiometricCheck(value)
 
 }

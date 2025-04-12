@@ -15,11 +15,4 @@ class DataStoreManagerImpl @Inject constructor(
     override fun getBiometricCheck(): Flow<Boolean> =
         dataStore.getBiometricCheck()
 
-    override suspend fun setFirstTime(value: Boolean) {
-        dataStore.setFirstTime(value)
-    }
-
-    override fun getFirstTime(): Flow<Boolean> =
-        dataStore.getFirstTime()
-
 }

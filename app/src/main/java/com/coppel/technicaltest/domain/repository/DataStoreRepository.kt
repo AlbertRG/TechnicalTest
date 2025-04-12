@@ -5,9 +5,6 @@ import kotlinx.coroutines.flow.Flow
 interface DataStoreRepository {
 
     fun getBiometricCheck(): Flow<Boolean>
-    suspend fun setBiometricCheck(value: Boolean)
-
-    fun getFirstTime(): Flow<Boolean>
-    suspend fun setFirstTime(value: Boolean)
+    suspend fun setBiometricCheck(value: Boolean): Boolean
 
 }

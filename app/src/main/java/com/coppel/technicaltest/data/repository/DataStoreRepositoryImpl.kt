@@ -13,16 +13,10 @@ class DataStoreRepositoryImpl @Inject constructor(
         return dataStore.getBiometricCheck()
     }
 
-    override suspend fun setBiometricCheck(value: Boolean) {
-        dataStore.setBiometricCheck(value)
-    }
-
-    override fun getFirstTime(): Flow<Boolean> {
-        return dataStore.getFirstTime()
-    }
-
-    override suspend fun setFirstTime(value: Boolean) {
-        dataStore.setFirstTime(value)
+    override suspend fun setBiometricCheck(value: Boolean): Boolean {
+        return runCatching {
+            dataStore.setBiometricCheck(value)
+        }.isSuccess
     }
 
 }
