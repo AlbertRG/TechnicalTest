@@ -20,7 +20,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.coppel.technicaltest.ui.components.home.HomeError
 import com.coppel.technicaltest.ui.components.home.HomeLoading
@@ -49,7 +48,9 @@ fun HomeScreen(
                     )
                 },
                 navigationIcon = {
-                    IconButton(onClick = navigateToLogin) {
+                    IconButton(onClick = {
+                        homeViewModel.signOut(navigateToLogin)
+                    }) {
                         Icon(
                             imageVector = Icons.AutoMirrored.Filled.ExitToApp,
                             contentDescription = "Back to Login",
@@ -79,13 +80,4 @@ fun HomeScreen(
             }
         }
     }
-}
-
-@Composable
-@Preview(showBackground = true)
-fun HomeScreenPreview() {
-    HomeScreen(
-        homeViewModel = HomeViewModel(),
-        navigateToLogin = {}
-    )
 }

@@ -25,7 +25,6 @@ fun ListItem(
     organization: String,
     source: String,
     fact: String,
-    isClickable: Boolean = false,
     onClickListener: () -> Unit = {},
 ) {
     Card(
@@ -33,7 +32,7 @@ fun ListItem(
         modifier = Modifier
             .fillMaxWidth()
             .padding(vertical = 8.dp)
-            .clickable(isClickable) {
+            .clickable(true) {
                 onClickListener()
             },
         colors = CardDefaults.cardColors(
