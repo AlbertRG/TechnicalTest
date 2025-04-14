@@ -1,6 +1,9 @@
 package com.coppel.technicaltest.ui.screens.signIn
 
+import android.Manifest
 import android.util.Log
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -56,6 +59,28 @@ fun SignInScreen(
     navigateToHome: () -> Unit
 ) {
     val signInState = signInViewModel.signInState.value
+
+    val requestLocationPermissionLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.RequestMultiplePermissions(),
+        onResult = { permissions ->
+            if (permissions[Manifest.permission.ACCESS_COARSE_LOCATION] == true &&
+                permissions[Manifest.permission.ACCESS_FINE_LOCATION] == true
+            ) {
+                Log.d("LocationPermission", "Location permissions granted")
+            }
+        }
+    )
+
+    LaunchedEffect(Unit) {
+        if (!signInViewModel.hasLocationPermission()) {
+            requestLocationPermissionLauncher.launch(
+                arrayOf(
+                    Manifest.permission.ACCESS_COARSE_LOCATION,
+                    Manifest.permission.ACCESS_FINE_LOCATION
+                )
+            )
+        }
+    }
 
     val context = LocalContext.current
     val activity = context as? FragmentActivity

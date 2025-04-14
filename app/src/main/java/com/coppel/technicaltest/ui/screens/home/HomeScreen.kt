@@ -21,6 +21,9 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import com.coppel.technicaltest.R
+import com.coppel.technicaltest.ui.components.FactDialog
+import com.coppel.technicaltest.ui.components.GeneralDialog
 import com.coppel.technicaltest.ui.components.home.HomeError
 import com.coppel.technicaltest.ui.components.home.HomeLoading
 import com.coppel.technicaltest.ui.components.home.HomeSuccess
@@ -80,4 +83,18 @@ fun HomeScreen(
             }
         }
     }
+    if (homeState.selectedFact != null) {
+        FactDialog(homeViewModel)
+    }
+    if (homeState.locationState == LocationState.InternetError) {
+        GeneralDialog(
+            icon = R.drawable.baseline_signal_wifi_connected_no_internet_4_24,
+            dialogTitle = "Sin conexión",
+            dialogText = "Por favor verifica tu conexión a internet",
+            onConfirmation = { homeViewModel.closeErrorDialog() },
+            hasDismissButton = false,
+            onDismissRequest = { }
+        )
+    }
+
 }

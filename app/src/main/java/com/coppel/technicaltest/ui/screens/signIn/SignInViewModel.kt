@@ -8,6 +8,7 @@ import androidx.lifecycle.viewModelScope
 import com.coppel.technicaltest.domain.usercase.GetBiometricCheckUseCase
 import com.coppel.technicaltest.domain.usercase.GetUserUseCase
 import com.coppel.technicaltest.domain.usercase.SetBiometricCheckUseCase
+import com.coppel.technicaltest.utils.LocationUtils
 import com.coppel.technicaltest.utils.SignInResult
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.first
@@ -19,6 +20,7 @@ class SignInViewModel @Inject constructor(
     private val getBiometricCheckUseCase: GetBiometricCheckUseCase,
     private val setBiometricCheckUseCase: SetBiometricCheckUseCase,
     private val getUserUseCase: GetUserUseCase,
+    private val locationUtils: LocationUtils
 ) : ViewModel() {
 
     private var _signInState = mutableStateOf(SignInState())
@@ -26,6 +28,10 @@ class SignInViewModel @Inject constructor(
 
     init {
         checkBiometricPreference()
+    }
+
+    fun hasLocationPermission(): Boolean {
+        return locationUtils.hasLocationPermission()
     }
 
     private fun checkBiometricPreference() {

@@ -77,7 +77,7 @@ fun HomeSuccess(
                     source = item.resource,
                     fact = item.fact,
                     onClickListener = {
-                        //TODO: Show Fact
+                        homeViewModel.openFactDialog(item)
                     }
                 )
             }
