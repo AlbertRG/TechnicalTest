@@ -1,8 +1,9 @@
-package com.coppel.technicaltest.ui.screens.login
+package com.coppel.technicaltest.ui.screens.signIn
 
 import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -48,24 +49,26 @@ import com.coppel.technicaltest.utils.BiometricAuthStatus
 import com.coppel.technicaltest.utils.BiometricAuthenticator
 
 @Composable
-fun LoginScreen(
-    loginViewModel: LoginViewModel,
+fun SignInScreen(
+    signInViewModel: SignInViewModel,
+    onGoogleSignIn: () -> Unit,
+    navigateToSignUp: () -> Unit,
     navigateToHome: () -> Unit
 ) {
-    val loginState = loginViewModel.loginState.value
+    val signInState = signInViewModel.signInState.value
 
     val context = LocalContext.current
     val activity = context as? FragmentActivity
     val biometricAuthenticator = BiometricAuthenticator(context)
     val authStatus = biometricAuthenticator.isBiometricAuthAvailable()
-    if (authStatus == BiometricAuthStatus.READY && loginState.isBiometricEnabled && !loginState.loginSuccess) {
+    if (authStatus == BiometricAuthStatus.READY && signInState.isBiometricEnabled && !signInState.isSignInSuccessful) {
         biometricAuthenticator.promptBiometricAuth(
             title = "Biometric Login",
             subTitle = "Please authenticate",
             negativeButtonText = "Cancel",
             fragmentActivity = activity!!,
             onSuccess = { result ->
-                loginViewModel.onLoginSuccessChanged(true)
+                signInViewModel.onSignInSuccessChanged(true)
                 Log.d("Biometric", "Authentication succeeded: $result")
             },
             onFailed = {
@@ -77,8 +80,8 @@ fun LoginScreen(
         )
     }
 
-    LaunchedEffect(loginState.loginSuccess) {
-        if (loginState.loginSuccess) {
+    LaunchedEffect(signInState.isSignInSuccessful) {
+        if (signInState.isSignInSuccessful) {
             navigateToHome()
         }
     }
@@ -109,7 +112,7 @@ fun LoginScreen(
                 )
             }
             Text(
-                text = "Login",
+                text = "Sign In",
                 modifier = Modifier.fillMaxWidth(),
                 fontSize = 32.sp,
                 fontWeight = FontWeight.Bold,
@@ -122,8 +125,8 @@ fun LoginScreen(
                 .weight(1f)
         ) {
             OutlinedTextField(
-                value = loginState.user,
-                onValueChange = { loginViewModel.onUserChanged(it) },
+                value = signInState.user,
+                onValueChange = { signInViewModel.onUserChanged(it) },
                 modifier = Modifier
                     .fillMaxWidth(),
                 label = {
@@ -150,10 +153,10 @@ fun LoginScreen(
                 )
             )
             OutlinedTextField(
-                value = loginState.password,
+                value = signInState.password,
                 onValueChange = {
                     if (it.length <= 10) {
-                        loginViewModel.onPasswordChanged(it)
+                        signInViewModel.onPasswordChanged(it)
                     }
                 },
                 modifier = Modifier
@@ -163,18 +166,18 @@ fun LoginScreen(
                     Text("Password")
                 },
                 trailingIcon = {
-                    val toggle = if (loginState.passVisibility)
+                    val toggle = if (signInState.isPasswordVisible)
                         R.drawable.baseline_visibility_24
                     else
                         R.drawable.baseline_visibility_off_24
                     IconButton(
                         onClick = {
-                            loginViewModel.onPasswordVisibilityChanged()
+                            signInViewModel.onPasswordVisibilityChanged()
                         }
                     ) {
                         Icon(
                             painter = painterResource(id = toggle),
-                            contentDescription = if (loginState.passVisibility) "Hide password"
+                            contentDescription = if (signInState.isPasswordVisible) "Hide password"
                             else "Show password",
                             tint = Color.White
                         )
@@ -182,15 +185,15 @@ fun LoginScreen(
                 },
                 supportingText = {
                     Row {
-                        Text(loginState.passSuppText)
+                        Text(signInState.passSuppText)
                         Spacer(Modifier.weight(1f))
                         Text(
-                            text = "${loginState.password.length}/10",
+                            text = "${signInState.password.length}/10",
                             color = Color.White
                         )
                     }
                 },
-                visualTransformation = if (loginState.passVisibility) VisualTransformation.None
+                visualTransformation = if (signInState.isPasswordVisible) VisualTransformation.None
                 else PasswordVisualTransformation(),
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
                 maxLines = 1,
@@ -209,25 +212,41 @@ fun LoginScreen(
             )
             Row(
                 modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.Start,
+                horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                Checkbox(
-                    checked = loginState.isBiometricEnabled,
-                    onCheckedChange = { loginViewModel.onBiometricChanged(it) },
-                    colors = CheckboxDefaults.colors(
-                        checkedColor = Color(0xFF665AFF),
-                        uncheckedColor = Color.White
+                Row(
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Checkbox(
+                        checked = signInState.isBiometricEnabled,
+                        onCheckedChange = { signInViewModel.onBiometricChanged(it) },
+                        colors = CheckboxDefaults.colors(
+                            checkedColor = Color(0xFF665AFF),
+                            uncheckedColor = Color.White
+                        )
                     )
-                )
-                Text(
-                    text = "Fingerprint",
-                    color = Color.White
-                )
+                    Text(
+                        text = "Fingerprint",
+                        color = Color.White
+                    )
+                }
+                Row {
+                    Text(
+                        text = "Sign Up",
+                        modifier = Modifier
+                            .clickable {
+                                navigateToSignUp()
+                            },
+                        color = Color.White,
+                        fontWeight = FontWeight.Bold
+                    )
+                    Spacer(modifier = Modifier.width(8.dp))
+                }
             }
             Button(
                 onClick = {
-                    loginViewModel.validateCredentials()
+                    signInViewModel.validateCredentials()
                 },
                 modifier = Modifier
                     .fillMaxWidth()
@@ -285,7 +304,7 @@ fun LoginScreen(
                 horizontalArrangement = Arrangement.SpaceEvenly
             ) {
                 Button(
-                    onClick = { },
+                    onClick = { onGoogleSignIn() },
                     modifier = Modifier
                         .padding(top = 16.dp),
                     colors = ButtonDefaults.buttonColors(

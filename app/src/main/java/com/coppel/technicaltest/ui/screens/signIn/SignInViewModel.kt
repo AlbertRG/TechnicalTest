@@ -1,4 +1,4 @@
-package com.coppel.technicaltest.ui.screens.login
+package com.coppel.technicaltest.ui.screens.signIn
 
 import android.util.Log
 import androidx.compose.runtime.State
@@ -8,20 +8,21 @@ import androidx.lifecycle.viewModelScope
 import com.coppel.technicaltest.domain.usercase.GetBiometricCheckUseCase
 import com.coppel.technicaltest.domain.usercase.GetUserUseCase
 import com.coppel.technicaltest.domain.usercase.SetBiometricCheckUseCase
+import com.coppel.technicaltest.utils.SignInResult
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
-class LoginViewModel @Inject constructor(
+class SignInViewModel @Inject constructor(
     private val getBiometricCheckUseCase: GetBiometricCheckUseCase,
     private val setBiometricCheckUseCase: SetBiometricCheckUseCase,
     private val getUserUseCase: GetUserUseCase,
 ) : ViewModel() {
 
-    private var _loginState = mutableStateOf(LoginState())
-    val loginState: State<LoginState> get() = _loginState
+    private var _signInState = mutableStateOf(SignInState())
+    val signInState: State<SignInState> get() = _signInState
 
     init {
         checkBiometricPreference()
@@ -30,17 +31,24 @@ class LoginViewModel @Inject constructor(
     private fun checkBiometricPreference() {
         viewModelScope.launch {
             val isBiometricEnabled = getBiometricCheckUseCase().first()
-            _loginState.value = _loginState.value.copy(isBiometricEnabled = isBiometricEnabled)
+            _signInState.value = _signInState.value.copy(isBiometricEnabled = isBiometricEnabled)
         }
     }
 
-    fun validateCredentials(){
-        val userInput = _loginState.value.user.trim()
-        val passwordInput = _loginState.value.password
+    fun onSignInResult(result: SignInResult) {
+        _signInState.value = _signInState.value.copy(
+            isSignInSuccessful = result.data != null,
+            signInError = result.errorMessage
+        )
+    }
+
+    fun validateCredentials() {
+        val userInput = _signInState.value.user.trim()
+        val passwordInput = _signInState.value.password
 
         if (userInput.isEmpty() || passwordInput.isEmpty()) {
-            _loginState.value = _loginState.value.copy(
-                passError = true,
+            _signInState.value = _signInState.value.copy(
+                isPasswordError = true,
                 passSuppText = "Fields cannot be empty"
             )
             return
@@ -50,22 +58,22 @@ class LoginViewModel @Inject constructor(
             try {
                 getUserUseCase(userInput).collect { user ->
                     if (user.password == passwordInput) {
-                        _loginState.value = _loginState.value.copy(
-                            loginSuccess = true,
-                            passError = false,
+                        _signInState.value = _signInState.value.copy(
+                            isSignInSuccessful = true,
+                            isPasswordError = false,
                             passSuppText = ""
                         )
                         Log.d("LoginViewModel", "Login successful for user: ${user.user}")
                     } else {
-                        _loginState.value = _loginState.value.copy(
-                            passError = true,
+                        _signInState.value = _signInState.value.copy(
+                            isPasswordError = true,
                             passSuppText = "Incorrect password"
                         )
                     }
                 }
             } catch (e: Exception) {
-                _loginState.value = _loginState.value.copy(
-                    passError = true,
+                _signInState.value = _signInState.value.copy(
+                    isPasswordError = true,
                     passSuppText = "User not found"
                 )
                 Log.e("LoginViewModel", "Login failed", e)
@@ -73,32 +81,32 @@ class LoginViewModel @Inject constructor(
         }
     }
 
-    fun onLoginSuccessChanged(success: Boolean) {
-        _loginState.value = _loginState.value.copy(loginSuccess = success)
+    fun onSignInSuccessChanged(success: Boolean) {
+        _signInState.value = _signInState.value.copy(isSignInSuccessful = success)
     }
 
     fun onUserChanged(newUser: String) {
-        _loginState.value = _loginState.value.copy(user = newUser)
+        _signInState.value = _signInState.value.copy(user = newUser)
     }
 
     fun onPasswordChanged(newPassword: String) {
-        _loginState.value = _loginState.value.copy(
+        _signInState.value = _signInState.value.copy(
             password = newPassword,
-            passError = false,
+            isPasswordError = false,
             passSuppText = ""
         )
     }
 
     fun onBiometricChanged(enabled: Boolean) {
-        _loginState.value = _loginState.value.copy(isBiometricEnabled = enabled)
+        _signInState.value = _signInState.value.copy(isBiometricEnabled = enabled)
         viewModelScope.launch {
             setBiometricCheckUseCase(enabled)
         }
     }
 
     fun onPasswordVisibilityChanged() {
-        _loginState.value =
-            _loginState.value.copy(passVisibility = !_loginState.value.passVisibility)
+        _signInState.value =
+            _signInState.value.copy(isPasswordVisible = !_signInState.value.isPasswordVisible)
     }
 
 }

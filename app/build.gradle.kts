@@ -4,6 +4,8 @@ plugins {
     alias(libs.plugins.kotlin.compose)
     alias(libs.plugins.jetbrains.kotlin.serialization)
     alias(libs.plugins.hilt)
+    alias(libs.plugins.googleService)
+    alias(libs.plugins.firebase.crashlytics)
     id("kotlin-kapt")
 }
 
@@ -89,6 +91,12 @@ dependencies {
 
     // --- Biometric ---
     implementation(libs.androidx.biometric)
+
+    // --- Firebase ---
+    implementation(platform(libs.firebase.bom))
+    implementation(libs.firebase.crashlytics)
+    implementation(libs.firebase.auth)
+    implementation(libs.play.services.auth)
 
     // --- Testing ---
     testImplementation(libs.junit)
